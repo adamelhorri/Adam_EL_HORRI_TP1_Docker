@@ -113,7 +113,44 @@ En allant sur [http://localhost:8080](http://localhost:8080), j’ai bien obtenu
 * `docker stop mon_nginx` → arrêt OK.
 * `docker rm mon_nginx` → conteneur supprimé proprement.
 
- 
+ ## 5. Exercice 4-5 : Flask + MongoDB (multi-conteneurs)
+
+La dernière étape consistait à faire communiquer Flask avec une base MongoDB.
+
+J’ai d’abord créé un réseau Docker :
+
+```powershell
+docker network create appnet
+```
+
+Puis lancé MongoDB :
+
+```powershell
+docker run -d --name mongo --network appnet -p 27017:27017 mongo:6.0
+```
+
+Ensuite, j’ai rebuild mon app Flask, cette fois avec `pymongo` installé, et un endpoint `/db` qui envoie un `ping` à Mongo :
+
+```powershell
+docker build -t flask-mongo-app .
+docker run -d --name app --network appnet -p 5000:5000 -e MONGO_URI="mongodb://mongo:27017" flask-mongo-app
+```
+
+Difficultés rencontrées :
+
+* Plusieurs fois, j’ai eu des conflits de noms (`/app` ou `/mongo` déjà existants). J’ai appris à régler ça avec :
+
+  ```powershell
+  docker stop app && docker rm app
+  docker stop mongo && docker rm mongo
+  ```
+* Parfois, j’oubliais le réseau ou la variable d’environnement → ce qui cassait la connexion. Une fois corrigé, l’app répondait bien.
+
+Résultat :
+
+* Sur `/` → Hello World animé.
+* Sur `/db` → message *“MongoDB OK (ping réussi)”*.
+
 
 ## Bilan
 
@@ -121,8 +158,9 @@ En allant sur [http://localhost:8080](http://localhost:8080), j’ai bien obtenu
 * J’ai appris à **lister, lancer, arrêter et supprimer** des conteneurs.
 * J’ai réussi à déployer un serveur **Nginx** et à l’atteindre via mon navigateur.
 * J’ai aussi eu une petite erreur de connexion au début (daemon non dispo), mais après redémarrage de Docker Desktop, tout est rentré dans l’ordre.
+* Construire une image personnalisée avec Flask.
 
-👉 Prochaine étape : passer à des applis plus avancées (Flask + MongoDB), où je pourrais tester la communication entre deux conteneurs.
+* Faire communiquer deux conteneurs via un réseau Docker (Flask + Mongo).
 
 
 ### Copie du shell
@@ -204,5 +242,17 @@ PS C:\Users\adame> docker stop mon_nginx
 mon_nginx
 PS C:\Users\adame> docker rm mon_nginx
 mon_nginx
-PS C:\Users\adame>
+
+PS C:\Users\adame\Desktop\Flask pour docker>  docker network create appnet
+
+PS C:\Users\adame\Desktop\Flask pour docker>  build -t flask-mongo-app .
+docker run -d --name app --network appnet -p 5000:5000 -e MONGO_URI="mongodb://mongo:27017" flask-mongo-app
+
+PS C:\Users\adame\Desktop\Flask pour docker> docker build -t flask-mongo-app .
+>> docker run -d --name app --network appnet -p 5000:5000 -e MONGO_URI="mongodb://mongo:27017" flask-mongo-app
+[+] Building 1.6s (10/10) FINISHED     
 ```
+
+
+
+
