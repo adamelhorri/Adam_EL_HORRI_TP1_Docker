@@ -1,6 +1,6 @@
 
 
-# TP Docker – Compte rendu
+# TP-1 Docker – Compte rendu
 
 ## 1. Installation de Docker
 
@@ -11,7 +11,9 @@ Pour vérifier, j’ai lancé :
 docker --version
 ```
 
-👉 Résultat : `Docker version 28.0.4, build b8034c0` → installation OK ✅.
+👉 Résultat : `Docker version 28.0.4, build b8034c0` 
+
+- installation OK .
 
 Au tout début, j’ai quand même eu une erreur de connexion au démon Docker (`error during connect… pipe not found`). J’ai dû relancer Docker Desktop et ensuite la commande a bien fonctionné.
 

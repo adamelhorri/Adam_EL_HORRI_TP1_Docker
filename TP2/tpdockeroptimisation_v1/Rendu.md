@@ -87,7 +87,7 @@ WORKDIR /app
 COPY package*.json ./
 ```
 - On installe les dependances en mode prod en utilisant `npm ci` au lieux de `npm install`, on omet les dependdances de dev (gain en stockage)
-```dockerimage
+```dockerfile
 RUN npm ci --omit=dev --no-audit --no-fund
 ```
 - On copie le reste du projet 
@@ -194,4 +194,27 @@ docker images
 
 REPOSITORY          TAG       IMAGE ID       CREATED         SIZE
 app                 opt       f3f02879367d   4 minutes ago   244MB
+```
+
+## 5- Comparaison des resultats avant/après optimisation
+### Vitesse de build 
+- Avant : 1 minutes et 5 secondes
+- Après : 
+    - Builder + Runner (Build à vide): 18 secondes
+    - Runner (build après save de cash +update du server.js) : 5 secondes
+On remarque un gain considerable en temps de build essentiellement du aux pratiques correctes utilisées , le gain de rebuild est lui aussi considerable grace à la mise des packages en cache
+### Taille de l'image 
+- Avant : 1.73 GB
+- Après : 244 MB
+
+On remarque un gain considerable en stockage essenntiellement dû au type de l'image (base alpine) plus leger, la non-copie de node_modules et à l'usage de `npm ci`
+###  Compte rendu final 
+```md
+| Critère        | Avant (baseline) | Après (optimisé) |
+|----------------|------------------|------------------|
+| Temps build    | ~65 s            | ~5 s             |
+| Taille image   | 1.73 GB          | 244 MB           |
+| Sécurité       | root             | user non-root    |
+| Base           | node:latest      | node:22-alpine   |
+
 ```
